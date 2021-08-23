@@ -2,11 +2,13 @@ package com.tdd.junit.udemy;
 
 import org.assertj.core.api.BDDAssertions;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class CadastroPessoasTest {
 
     @Test
+    @DisplayName("Deve cadastrar uma pessoa quando tudo der certo")
     void deveCriarOCadastroDePessoas(){
         // cenário e execução
         CadastroPessoas cadastro = new CadastroPessoas();
@@ -16,6 +18,7 @@ public class CadastroPessoasTest {
     }
 
     @Test
+    @DisplayName("Deve adicionar uma pessoa quando tudo der certo")
     void deveAdicionarUmaPessoa(){
         CadastroPessoas cadastroPessoas = new CadastroPessoas();
         Pessoa pessoa = new Pessoa();
@@ -30,6 +33,7 @@ public class CadastroPessoasTest {
     }
 
     @Test
+    @DisplayName("Não deve adicionar uma pessoa quando o nome não for informado")
     void naoDeveAdicionarPessoaComNomeVazio(){
         CadastroPessoas cadastroPessoas = new CadastroPessoas();
         Pessoa pessoa = new Pessoa();
@@ -39,6 +43,7 @@ public class CadastroPessoasTest {
     }
 
     @Test
+    @DisplayName("Deve remover uma pessoa quando tudo ocorrer bem")
     void deveRemoverUmaPessoa(){
         // cenário
         CadastroPessoas cadastroPessoas = new CadastroPessoas();
@@ -55,6 +60,7 @@ public class CadastroPessoasTest {
     }
 
     @Test
+    @DisplayName("Deve lançar uma exceção ao tentar remover uma pessoa inexistente")
     void deveLancarErroAoTentarRemoverPessoaInexistente(){
         CadastroPessoas cadastroPessoas = new CadastroPessoas();
         Pessoa pessoa = new Pessoa();
