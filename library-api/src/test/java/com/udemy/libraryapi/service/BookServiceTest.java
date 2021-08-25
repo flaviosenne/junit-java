@@ -1,8 +1,11 @@
 package com.udemy.libraryapi.service;
 
 import com.udemy.libraryapi.domain.entity.Book;
+import com.udemy.libraryapi.exception.BusinessException;
 import com.udemy.libraryapi.model.repository.BookRepository;
 import com.udemy.libraryapi.service.impl.BookServiceImpl;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.BDDAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,6 +16,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
@@ -28,16 +33,20 @@ class BookServiceTest {
         this.service = new BookServiceImpl(repository);
     }
 
-    @Test
-    @DisplayName("Should save a book")
-    void saveBookTest(){
-        Book book = Book.builder()
+    Book createBook(){
+        return Book.builder()
                 .isbn("123")
                 .author("Fulano")
                 .title("As aventuras")
                 .build();
+    }
+    @Test
+    @DisplayName("Should save a book")
+    void saveBookTest(){
+        Book book =  createBook();
+        when(repository.existsByIsbn(anyString())).thenReturn(false);
 
-        Mockito.when(repository.save(book)).thenReturn(Book.builder()
+        when(repository.save(book)).thenReturn(Book.builder()
                 .id(1l)
                 .isbn("123")
                 .title("As aventuras")
@@ -50,5 +59,20 @@ class BookServiceTest {
         assertThat(savedBook.getIsbn()).isEqualTo("123");
         assertThat(savedBook.getTitle()).isEqualTo("As aventuras");
         assertThat(savedBook.getAuthor()).isEqualTo("Fulano");
+    }
+
+    @Test
+    @DisplayName("Should throw error exception when try save isbn duplicated")
+    void ShouldNotSaveSaveBookWithDuplicatedISBN(){
+        Book book = createBook();
+        when(repository.existsByIsbn(anyString())).thenReturn(true);
+
+        Throwable exception = Assertions.catchThrowable(() -> service.save(book));
+
+        BDDAssertions.assertThat(exception)
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("Isbn já cadastrado.");
+
+        Mockito.verify(repository, Mockito.never()).save(book);
     }
 }
