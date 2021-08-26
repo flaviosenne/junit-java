@@ -6,6 +6,8 @@ import com.udemy.libraryapi.model.repository.BookRepository;
 import com.udemy.libraryapi.service.BookService;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class BookServiceImpl implements BookService {
 
@@ -22,4 +24,11 @@ public class BookServiceImpl implements BookService {
         }
         return repository.save(book);
     }
+
+    @Override
+    public Optional<Book> getById(Long id){
+        return Optional.empty();
+    }
+
+
 }

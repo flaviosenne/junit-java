@@ -22,8 +22,11 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.Optional;
+
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -116,6 +119,52 @@ class BookControllerTest {
                 .andExpect(jsonPath("errors[0]").value(messageError));
 
 
+    }
+
+    @Test
+    @DisplayName("Should get book detail")
+    void getBookDetail() throws Exception{
+        // cenario (given)
+        Long id = 1l;
+
+        Book book = Book.builder()
+                .id(id)
+                .title(createNewBook().getTitle())
+                .author(createNewBook().getAuthor())
+                .isbn(createNewBook().getIsbn())
+                .build();
+
+        BDDMockito.given(service.getById(id)).willReturn(Optional.of(book));
+
+        // execução (when)
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .get(BOOK_API.concat("/" + id))
+                .accept(MediaType.APPLICATION_JSON);
+
+        // verificação
+
+        mvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("id").value(id))
+                .andExpect( MockMvcResultMatchers.jsonPath("title").value(createNewBook().getTitle()))
+                .andExpect( MockMvcResultMatchers.jsonPath("author").value(createNewBook().getAuthor()))
+                .andExpect( MockMvcResultMatchers.jsonPath("isbn").value(createNewBook().getIsbn()));
+
+    }
+
+    @Test
+    @DisplayName("Should return not found exception when book not found in DB")
+    void bookNotFoundTest() throws Exception{
+
+        BDDMockito.given(service.getById(anyLong())).willReturn(Optional.empty());
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .get(BOOK_API.concat("/" + 1))
+                .accept(MediaType.APPLICATION_JSON);
+
+        mvc.perform(request)
+                .andExpect(status().isNotFound());
     }
 
     private BookDTO createNewBook(){
