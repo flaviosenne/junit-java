@@ -167,6 +167,34 @@ class BookControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    @DisplayName("Should delete a book")
+    void deleteBookTest() throws Exception{
+
+        BDDMockito.given(service.getById(anyLong())).willReturn(Optional.of(Book.builder().id(1l).build()));
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .delete(BOOK_API.concat("/" + 1));
+
+        mvc.perform( request )
+                .andExpect(status().isNoContent());
+
+    }
+
+    @Test
+    @DisplayName("Should return resource not found when do not exists book in DB")
+    void deleteNotExistBookTest() throws Exception{
+
+        BDDMockito.given(service.getById(anyLong())).willReturn(Optional.empty());
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .delete(BOOK_API.concat("/" + 1));
+
+        mvc.perform( request )
+                .andExpect(status().isNotFound());
+
+    }
+
     private BookDTO createNewBook(){
         return BookDTO.builder()
                 .author("Joao")

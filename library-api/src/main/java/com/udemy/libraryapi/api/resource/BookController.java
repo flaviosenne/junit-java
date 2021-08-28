@@ -8,14 +8,11 @@ import com.udemy.libraryapi.service.BookService;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/books")
@@ -44,7 +41,15 @@ public class BookController {
         return service.getById(id)
                 .map( book -> modelMapper.map(book, BookDTO.class))
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
 
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("{id}")
+    public void delete(@PathVariable Long id){
+        Book book = service.getById(id)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        service.delete(book);
 
     }
 
