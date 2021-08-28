@@ -15,6 +15,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -59,6 +61,36 @@ class BookServiceTest {
         assertThat(savedBook.getIsbn()).isEqualTo("123");
         assertThat(savedBook.getTitle()).isEqualTo("As aventuras");
         assertThat(savedBook.getAuthor()).isEqualTo("Fulano");
+    }
+
+    @Test
+    @DisplayName("Should return a book when id is provider in DB")
+    void getById(){
+        Long id = 1l;
+        Book book = createBook();
+        book.setId(id);
+        Mockito.when(repository.findById(id)).thenReturn(Optional.of(book));
+
+        Optional<Book> foundBook = service.getById(id);
+
+        assertThat(foundBook).isPresent();
+        assertThat(foundBook.get().getId()).isEqualTo(id);
+        assertThat(foundBook.get().getAuthor()).isEqualTo(book.getAuthor());
+        assertThat(foundBook.get().getIsbn()).isEqualTo(book.getIsbn());
+        assertThat(foundBook.get().getTitle()).isEqualTo(book.getTitle());
+
+    }
+
+    @Test
+    @DisplayName("Should return empty when id is not provider in DB")
+    void getByIdNotFound(){
+        Long id = 1l;
+        Mockito.when(repository.findById(id)).thenReturn(Optional.empty());
+
+        Optional<Book> book = service.getById(id);
+
+        assertThat(book).isNotPresent();
+
     }
 
     @Test
