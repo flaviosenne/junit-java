@@ -11,10 +11,12 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Optional;
+
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
 @DataJpaTest
-public class BookRepositoryTest {
+class BookRepositoryTest {
 
     @Autowired
     TestEntityManager entityManager;
@@ -27,7 +29,7 @@ public class BookRepositoryTest {
     void ShouldReturnTrueWhenExistBookInDB(){
         // cenario
         String isbn = "123";
-        Book book = Book.builder().author("Fulano").title("As Aventuras").isbn(isbn).build();
+        Book book = createNewBook(isbn);
         entityManager.persist(book);
 
         // execução
@@ -35,6 +37,10 @@ public class BookRepositoryTest {
 
         // verificação
         BDDAssertions.assertThat(exist).isTrue();
+    }
+
+    private Book createNewBook(String isbn) {
+        return Book.builder().author("Fulano").title("As Aventuras").isbn(isbn).build();
     }
 
     @Test
@@ -48,5 +54,17 @@ public class BookRepositoryTest {
 
         // verificação
         BDDAssertions.assertThat(exist).isFalse();
+    }
+
+    @Test
+    @DisplayName("Should return book by id")
+    void findById(){
+        Book book = createNewBook("123");
+        entityManager.persist(book);
+
+        Optional<Book> foundBook = repository.findById(book.getId());
+
+        BDDAssertions.assertThat(foundBook).isPresent();
+
     }
 }
