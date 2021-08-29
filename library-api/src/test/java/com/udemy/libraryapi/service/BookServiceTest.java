@@ -127,4 +127,36 @@ class BookServiceTest {
 
         verify(repository, never()).delete(book);
     }
+
+    @Test
+    @DisplayName("Not Should update a book when id is not provider")
+    void updateBookFail(){
+        Book book = new Book();
+
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+                ()->service.update(book));
+
+        verify(repository, never()).save(book);
+    }
+
+    @Test
+    @DisplayName("Should update a book when id is provider")
+    void updateBookTest(){
+        Long id = 1l;
+        Book updatingBook = Book.builder().id(id).build();
+
+        Book updatedBook = createBook();
+        updatedBook.setId(id);
+
+        when(repository.save(updatingBook)).thenReturn(updatedBook);
+
+        Book book = service.update(updatingBook);
+
+        assertThat(book.getId()).isEqualTo(updatedBook.getId());
+        assertThat(book.getTitle()).isEqualTo(updatedBook.getTitle());
+        assertThat(book.getIsbn()).isEqualTo(updatedBook.getIsbn());
+        assertThat(book.getAuthor()).isEqualTo(updatedBook.getAuthor());
+
+
+    }
 }
