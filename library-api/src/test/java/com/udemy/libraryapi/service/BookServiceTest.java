@@ -19,7 +19,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
@@ -90,7 +90,6 @@ class BookServiceTest {
         Optional<Book> book = service.getById(id);
 
         assertThat(book).isNotPresent();
-
     }
 
     @Test
@@ -106,5 +105,26 @@ class BookServiceTest {
                 .hasMessage("Isbn já cadastrado.");
 
         Mockito.verify(repository, Mockito.never()).save(book);
+    }
+
+    @Test
+    @DisplayName("Should delete a book when id is provider")
+    void deleteBook(){
+        Book book = Book.builder().id(1l).build();
+
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(()->service.delete(book));
+
+        verify(repository, times(1)).delete(book);
+    }
+
+    @Test
+    @DisplayName("Not Should delete a book when id is not provider")
+    void deleteBookFail(){
+        Book book = new Book();
+
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+                ()->service.delete(book));
+
+        verify(repository, never()).delete(book);
     }
 }
