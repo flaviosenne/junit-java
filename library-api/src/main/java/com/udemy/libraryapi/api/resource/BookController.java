@@ -1,17 +1,13 @@
 package com.udemy.libraryapi.api.resource;
 
 import com.udemy.libraryapi.api.dto.BookDTO.BookDTO;
-import com.udemy.libraryapi.api.exception.ApiErrors;
 import com.udemy.libraryapi.domain.entity.Book;
-import com.udemy.libraryapi.exception.BusinessException;
 import com.udemy.libraryapi.service.BookService;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -84,16 +80,4 @@ public class BookController {
         return new PageImpl<BookDTO>(list, pageRequest, result.getTotalElements());
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ApiErrors handleValidationException(MethodArgumentNotValidException exception){
-        BindingResult bindingResult = exception.getBindingResult();
-        return new ApiErrors(bindingResult);
-    }
-
-    @ExceptionHandler(BusinessException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiErrors handleBusinessException(BusinessException exception){
-        return new ApiErrors(exception);
-    }
 }
