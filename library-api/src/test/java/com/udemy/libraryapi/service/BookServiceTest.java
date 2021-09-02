@@ -193,4 +193,21 @@ class BookServiceTest {
 
 
     }
+
+    @Test
+    @DisplayName("Should return a book by isbn")
+    void getBookByIsbn(){
+        String isbn = "1230";
+
+        when(repository.findByIsbn(isbn))
+                .thenReturn(Optional.of(Book.builder().id(1l).isbn(isbn).build()));
+
+        Optional<Book> book = service.getBookByIsbn(isbn);
+
+        BDDAssertions.assertThat(book).isPresent();
+        BDDAssertions.assertThat(book.get().getId()).isEqualTo(1l);
+        BDDAssertions.assertThat(book.get().getIsbn()).isEqualTo(isbn);
+
+        verify(repository, times(1)).findByIsbn(isbn);
+    }
 }
