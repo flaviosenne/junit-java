@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.udemy.libraryapi.api.dto.BookDTO.LoanDTO;
 import com.udemy.libraryapi.domain.entity.Book;
 import com.udemy.libraryapi.domain.entity.Loan;
+import com.udemy.libraryapi.exception.BusinessException;
 import com.udemy.libraryapi.service.BookService;
 import com.udemy.libraryapi.service.LoanService;
 import org.hamcrest.Matchers;
@@ -88,6 +89,32 @@ class LoanControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors", Matchers.hasSize(1)))
                 .andExpect(jsonPath("errors[0]").value("Book not found for passed isbn"));
+
+    }
+
+    @Test
+    @DisplayName("Should return a error when book error in loan create is fail")
+    void loanedBookErrorOnCreateLoanTest() throws Exception{
+
+        LoanDTO dto = LoanDTO.builder().isbn("123").customer("Fulano").build();
+        String json = new ObjectMapper().writeValueAsString(dto);
+
+        Book book = Book.builder().id(1l).isbn("123").build();
+        BDDMockito.given(bookService.getBookByIsbn("123")).willReturn(Optional.of(book));
+
+        BDDMockito.given(loanService.save(any(Loan.class)))
+                .willThrow(new BusinessException("Book already loaned"));
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(LOAN_API)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json);
+
+
+        mvc.perform(request)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors", Matchers.hasSize(1)))
+                .andExpect(jsonPath("errors[0]").value("Book already loaned"));
 
     }
 
