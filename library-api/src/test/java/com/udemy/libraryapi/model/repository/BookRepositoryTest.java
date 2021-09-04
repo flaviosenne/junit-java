@@ -39,7 +39,7 @@ class BookRepositoryTest {
         BDDAssertions.assertThat(exist).isTrue();
     }
 
-    private Book createNewBook(String isbn) {
+    public static Book createNewBook(String isbn) {
         return Book.builder().author("Fulano").title("As Aventuras").isbn(isbn).build();
     }
 
