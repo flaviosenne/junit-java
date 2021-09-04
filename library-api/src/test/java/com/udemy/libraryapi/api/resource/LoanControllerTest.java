@@ -141,4 +141,21 @@ class LoanControllerTest {
         verify(loanService, times(1)).update(loan);
     }
 
+    @Test
+    @DisplayName("Should return 404 when not found book")
+    void NotFoundBookTest() throws Exception{
+        ReturnedLoanDto dto = ReturnedLoanDto.builder().returned(true).build();
+        when(loanService.getById(anyLong())).thenReturn(Optional.empty());
+        String json = new ObjectMapper().writeValueAsString(dto);
+
+
+        mvc.perform(
+                patch(LOAN_API.concat("/1"))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+        ).andExpect(status().isNotFound());
+
+    }
+
 }
