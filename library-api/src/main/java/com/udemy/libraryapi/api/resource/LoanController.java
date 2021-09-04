@@ -1,6 +1,7 @@
 package com.udemy.libraryapi.api.resource;
 
-import com.udemy.libraryapi.api.dto.BookDTO.LoanDTO;
+import com.udemy.libraryapi.api.dto.LoanDTO;
+import com.udemy.libraryapi.api.dto.ReturnedLoanDto;
 import com.udemy.libraryapi.domain.entity.Book;
 import com.udemy.libraryapi.domain.entity.Loan;
 import com.udemy.libraryapi.service.BookService;
@@ -11,14 +12,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/loans")
 @RequiredArgsConstructor
 public class LoanController {
 
-    private final LoanService loanService;
+    private final LoanService service;
 
     private final BookService bookService;
 
@@ -35,9 +35,17 @@ public class LoanController {
                 .loanDate(LocalDate.now())
                 .build();
 
-        entity = loanService.save(entity);
+        entity = service.save(entity);
 
         return entity.getId();
+    }
+
+    @PatchMapping("{id}")
+    public void returnBook(@PathVariable Long id, @RequestBody ReturnedLoanDto dto){
+        Loan loan = service.getById(id).get();
+        loan.setReturned(dto.getReturned());
+        service.update(loan);
+
     }
 
 }

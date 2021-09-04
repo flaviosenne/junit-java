@@ -1,4 +1,4 @@
-package com.udemy.libraryapi.api.dto.BookDTO;
+package com.udemy.libraryapi.api.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

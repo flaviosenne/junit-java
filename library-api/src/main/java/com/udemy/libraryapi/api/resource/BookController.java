@@ -1,6 +1,6 @@
 package com.udemy.libraryapi.api.resource;
 
-import com.udemy.libraryapi.api.dto.BookDTO.BookDTO;
+import com.udemy.libraryapi.api.dto.BookDTO;
 import com.udemy.libraryapi.domain.entity.Book;
 import com.udemy.libraryapi.service.BookService;
 import org.modelmapper.ModelMapper;

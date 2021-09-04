@@ -1,7 +1,7 @@
 package com.udemy.libraryapi.api.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.udemy.libraryapi.api.dto.BookDTO.BookDTO;
+import com.udemy.libraryapi.api.dto.BookDTO;
 import com.udemy.libraryapi.domain.entity.Book;
 import com.udemy.libraryapi.exception.BusinessException;
 import com.udemy.libraryapi.service.BookService;

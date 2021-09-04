@@ -1,7 +1,8 @@
 package com.udemy.libraryapi.api.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.udemy.libraryapi.api.dto.BookDTO.LoanDTO;
+import com.udemy.libraryapi.api.dto.LoanDTO;
+import com.udemy.libraryapi.api.dto.ReturnedLoanDto;
 import com.udemy.libraryapi.domain.entity.Book;
 import com.udemy.libraryapi.domain.entity.Loan;
 import com.udemy.libraryapi.exception.BusinessException;
@@ -27,6 +28,9 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
@@ -116,6 +120,25 @@ class LoanControllerTest {
                 .andExpect(jsonPath("errors", Matchers.hasSize(1)))
                 .andExpect(jsonPath("errors[0]").value("Book already loaned"));
 
+    }
+
+    @Test
+    @DisplayName("Should return a book")
+    void returnBookTest() throws Exception{
+        ReturnedLoanDto dto = ReturnedLoanDto.builder().returned(true).build();
+        Loan loan = Loan.builder().id(1l).build();
+        when(loanService.getById(anyLong())).thenReturn(Optional.of(loan));
+        String json = new ObjectMapper().writeValueAsString(dto);
+
+
+        mvc.perform(
+                patch(LOAN_API.concat("/1"))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+        ).andExpect(status().isOk());
+
+        verify(loanService, times(1)).update(loan);
     }
 
 }
