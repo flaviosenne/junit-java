@@ -9,10 +9,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.persistence.EntityManager;
 
 import java.time.LocalDate;
 
@@ -21,7 +23,7 @@ import static com.udemy.libraryapi.model.repository.BookRepositoryTest.createNew
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
 @DataJpaTest
-public class LoanRepositoryTest {
+class LoanRepositoryTest {
 
     @Autowired
     LoanRepository repository;
@@ -32,6 +34,29 @@ public class LoanRepositoryTest {
     @Test
     @DisplayName("Should verify already exists loan not returned by book")
     void existsByBookAndNotReturned(){
+        Loan loan = createAndPersistLoan();
+
+        boolean exists = repository.existsByBookAndNotReturned(loan.getBook());
+
+        BDDAssertions.assertThat(exists).isTrue();
+    }
+
+    @Test
+    @DisplayName("Should search loan by isbn book or customer")
+    void findByBookIsbnOrCustomer(){
+        Loan loan = createAndPersistLoan();
+
+        Page<Loan> result = repository.findByBookIsbnOrCustomer("123", "Fulano", PageRequest.of(0, 10));
+
+        BDDAssertions.assertThat(result.getContent()).hasSize(1);
+        BDDAssertions.assertThat(result.getContent()).contains(loan);
+        BDDAssertions.assertThat(result.getPageable().getPageSize()).isEqualTo(10);
+        BDDAssertions.assertThat(result.getPageable().getPageNumber()).isEqualTo(0);
+        BDDAssertions.assertThat(result.getTotalElements()).isEqualTo(1);
+
+    }
+
+    Loan createAndPersistLoan(){
         Book book= createNewBook("123");
         entityManager.persist(book);
 
@@ -42,9 +67,7 @@ public class LoanRepositoryTest {
                 .build();
         entityManager.persist(loan);
 
-        boolean exists = repository.existsByBookAndNotReturned(book);
-
-        BDDAssertions.assertThat(exists).isTrue();
+        return loan;
     }
 
 }
