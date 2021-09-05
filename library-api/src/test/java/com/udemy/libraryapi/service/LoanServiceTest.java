@@ -1,5 +1,6 @@
 package com.udemy.libraryapi.service;
 
+import com.udemy.libraryapi.api.dto.LoanFilterDto;
 import com.udemy.libraryapi.domain.entity.Book;
 import com.udemy.libraryapi.domain.entity.Loan;
 import com.udemy.libraryapi.exception.BusinessException;
@@ -11,11 +12,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -116,6 +124,38 @@ public class LoanServiceTest {
         BDDAssertions.assertThat(updatedLoan.getReturned()).isTrue();
         verify(repository).save(loan);
     }
+
+
+    @Test
+    @DisplayName("Should filter loans by properties")
+    void findLoanTest(){
+        LoanFilterDto loanFilterDto = LoanFilterDto.builder()
+                .customer("Fulano")
+                .isbn("321")
+                .build();
+
+
+        Loan loan = createLoan();
+        loan.setId(1l);
+        PageRequest pageRequest = PageRequest.of(0, 10);
+
+        List<Loan> list = Collections.singletonList(loan);
+
+        Page<Loan> page = new PageImpl<Loan>(list ,pageRequest,list.size());
+
+        Mockito.when(repository.findByBookIsbnOrCustomer(
+                anyString(), anyString(), any(PageRequest.class)))
+                .thenReturn(page);
+
+        Page<Loan> result = service.find(loanFilterDto, pageRequest);
+
+        BDDAssertions.assertThat(result.getTotalElements()).isEqualTo(1);
+        BDDAssertions.assertThat(result.getContent()).isEqualTo( list );
+        BDDAssertions.assertThat(result.getPageable().getPageNumber()).isEqualTo( 0 );
+        BDDAssertions.assertThat(result.getPageable().getPageSize()).isEqualTo( 10 );
+
+    }
+
 
     public static Loan createLoan(){
         Book book = Book.builder().id(1l).build();
