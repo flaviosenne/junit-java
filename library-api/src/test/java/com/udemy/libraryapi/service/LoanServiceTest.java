@@ -42,11 +42,7 @@ class LoanServiceTest {
         Book book = Book.builder().id(1l).build();
         String customer = "Fulano";
 
-        Loan savingLoan = Loan.builder()
-                .book(book)
-                .loanDate(LocalDate.now())
-                .customer(customer)
-                .build();
+        Loan savingLoan = createLoan();
 
         Loan savedLoan = Loan.builder()
                 .id(1l)
@@ -71,14 +67,9 @@ class LoanServiceTest {
     @DisplayName("Should throw exception when save a loan already loan")
     void saveLoanFailTest(){
 
-        Book book = Book.builder().id(1l).build();
-        String customer = "Fulano";
+        ;Book book = Book.builder().id(1l).build();
 
-        Loan savingLoan = Loan.builder()
-                .book(book)
-                .loanDate(LocalDate.now())
-                .customer(customer)
-                .build();
+        Loan savingLoan = createLoan();
 
         when(repository.existsByBookAndNotReturned(book)).thenReturn(true);
 
@@ -92,7 +83,7 @@ class LoanServiceTest {
     }
 
     @Test
-    @DisplayName("Should get informations of loan by id")
+    @DisplayName("Should get information of loan by id")
     void getLoanDetailsTest(){
         Long id = 1l;
         Loan loan = createLoan();
@@ -109,6 +100,21 @@ class LoanServiceTest {
         BDDAssertions.assertThat(result.get().getLoanDate()).isEqualTo(loan.getLoanDate());
 
         verify(repository).findById(id);
+    }
+
+    @Test
+    @DisplayName("Should update loan")
+    void updateLoanTest(){
+        Loan loan = createLoan();
+        loan.setId(1l);
+        loan.setReturned(true);
+
+        when(repository.save(loan)).thenReturn(loan);
+
+        Loan updatedLoan = service.update(loan);
+
+        BDDAssertions.assertThat(updatedLoan.getReturned()).isTrue();
+        verify(repository).save(loan);
     }
 
     public Loan createLoan(){
