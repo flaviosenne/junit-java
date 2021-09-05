@@ -16,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 
@@ -88,5 +89,36 @@ class LoanServiceTest {
                 .hasMessage("Book already loaned");
 
         verify(repository, never()).save(savingLoan);
+    }
+
+    @Test
+    @DisplayName("Should get informations of loan by id")
+    void getLoanDetailsTest(){
+        Long id = 1l;
+        Loan loan = createLoan();
+        loan.setId(id);
+
+        when(repository.findById(id)).thenReturn(Optional.of(loan));
+
+        Optional<Loan> result = service.getById(id);
+
+        BDDAssertions.assertThat(result).isPresent();
+        BDDAssertions.assertThat(result.get().getId()).isEqualTo(id);
+        BDDAssertions.assertThat(result.get().getCustomer()).isEqualTo(loan.getCustomer());
+        BDDAssertions.assertThat(result.get().getBook()).isEqualTo(loan.getBook());
+        BDDAssertions.assertThat(result.get().getLoanDate()).isEqualTo(loan.getLoanDate());
+
+        verify(repository).findById(id);
+    }
+
+    public Loan createLoan(){
+        Book book = Book.builder().id(1l).build();
+        String customer = "Fulano";
+
+        return Loan.builder()
+                .book(book)
+                .loanDate(LocalDate.now())
+                .customer(customer)
+                .build();
     }
 }
