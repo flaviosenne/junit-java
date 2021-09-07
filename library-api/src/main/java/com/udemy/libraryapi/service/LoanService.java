@@ -7,6 +7,7 @@ import com.udemy.libraryapi.domain.entity.Loan;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface LoanService {
@@ -19,4 +20,6 @@ public interface LoanService {
     Page<Loan> find(LoanFilterDto filterDTO, Pageable page);
 
     Page<Loan> getLoansByBook(Book book, Pageable page);
+
+    List<Loan> getAllLateLoans();
 }
