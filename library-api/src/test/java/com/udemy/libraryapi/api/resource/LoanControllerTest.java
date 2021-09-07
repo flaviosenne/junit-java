@@ -60,7 +60,7 @@ class LoanControllerTest {
     void createLoanTest() throws Exception{
         Long id = 1l;
 
-        LoanDTO dto = LoanDTO.builder().isbn("123").customer("Fulano").build();
+        LoanDTO dto = LoanDTO.builder().isbn("123").email("customer@email.com").customer("Fulano").build();
         String json = new ObjectMapper().writeValueAsString(dto);
 
         Book book = Book.builder().id(id).isbn("123").build();
@@ -84,7 +84,7 @@ class LoanControllerTest {
     @DisplayName("Should return a error when loan create is fail")
     void invalidIsbnCreateLoanTest() throws Exception{
 
-        LoanDTO dto = LoanDTO.builder().isbn("123").customer("Fulano").build();
+        LoanDTO dto = LoanDTO.builder().isbn("123").email("customer@email.com").customer("Fulano").build();
         String json = new ObjectMapper().writeValueAsString(dto);
 
         BDDMockito.given(bookService.getBookByIsbn("123")).willReturn(Optional.empty());
@@ -106,7 +106,7 @@ class LoanControllerTest {
     @DisplayName("Should return a error when book error in loan create is fail")
     void loanedBookErrorOnCreateLoanTest() throws Exception{
 
-        LoanDTO dto = LoanDTO.builder().isbn("123").customer("Fulano").build();
+        LoanDTO dto = LoanDTO.builder().isbn("123").email("customer@email.com").customer("Fulano").build();
         String json = new ObjectMapper().writeValueAsString(dto);
 
         Book book = Book.builder().id(1l).isbn("123").build();

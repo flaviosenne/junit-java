@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,7 +34,7 @@ public class LoanController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Long create(@RequestBody LoanDTO dto){
+    public Long create(@RequestBody @Valid LoanDTO dto){
         Book book = bookService.getBookByIsbn(dto.getIsbn())
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Book not found for passed isbn"));
