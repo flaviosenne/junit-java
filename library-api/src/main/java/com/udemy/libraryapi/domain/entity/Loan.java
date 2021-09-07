@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table
 public class Loan {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

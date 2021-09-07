@@ -1,6 +1,7 @@
 package com.udemy.libraryapi.service.impl;
 
 import com.udemy.libraryapi.api.dto.LoanFilterDto;
+import com.udemy.libraryapi.domain.entity.Book;
 import com.udemy.libraryapi.domain.entity.Loan;
 import com.udemy.libraryapi.exception.BusinessException;
 import com.udemy.libraryapi.model.repository.LoanRepository;
@@ -41,5 +42,10 @@ public class LoanServiceImpl implements LoanService {
     @Override
     public Page<Loan> find(LoanFilterDto filterDTO, Pageable page) {
         return repository.findByBookIsbnOrCustomer(filterDTO.getIsbn(), filterDTO.getCustomer(), page);
+    }
+
+    @Override
+    public Page<Loan> getLoansByBook(Book book, Pageable page) {
+        return repository.findByBook(book, page);
     }
 }
