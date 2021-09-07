@@ -1,8 +1,11 @@
 package com.udemy.libraryapi.api.resource;
 
 import com.udemy.libraryapi.api.dto.BookDTO;
+import com.udemy.libraryapi.api.dto.LoanDTO;
 import com.udemy.libraryapi.domain.entity.Book;
+import com.udemy.libraryapi.domain.entity.Loan;
 import com.udemy.libraryapi.service.BookService;
+import com.udemy.libraryapi.service.LoanService;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -21,10 +24,12 @@ public class BookController {
 
     private BookService service;
     private ModelMapper modelMapper;
+    private LoanService loanService;
 
-    public BookController(BookService service, ModelMapper modelMapper){
+    public BookController(BookService service, ModelMapper modelMapper, LoanService loanService){
         this.service = service;
         this.modelMapper = modelMapper;
+        this.loanService = loanService;
     }
 
     @PostMapping
@@ -77,7 +82,27 @@ public class BookController {
                 .map( entity -> modelMapper.map(entity, BookDTO.class))
                 .collect(Collectors.toList());
 
-        return new PageImpl<BookDTO>(list, pageRequest, result.getTotalElements());
+        return new PageImpl<>(list, pageRequest, result.getTotalElements());
     }
 
+    @GetMapping("{id}/loans")
+    public Page<LoanDTO> loansByBook(@PathVariable Long id, Pageable page){
+        Book book = service.getById(id).orElseThrow(
+                ()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        Page<Loan> result = loanService.getLoansByBook(book, page);
+
+        List<LoanDTO> list = result.getContent()
+                .stream()
+                .map(loan -> {
+                    Book loanBook = loan.getBook();
+                    BookDTO bookDTO = modelMapper.map(loanBook, BookDTO.class);
+                    LoanDTO loanDTO = modelMapper.map(loan, LoanDTO.class);
+                    loanDTO.setBook(bookDTO);
+                    return loanDTO;
+                }).collect(Collectors.toList());
+
+        return new PageImpl<>(list, page, result.getTotalElements());
+
+    }
 }
