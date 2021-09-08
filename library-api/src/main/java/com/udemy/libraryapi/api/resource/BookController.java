@@ -6,6 +6,10 @@ import com.udemy.libraryapi.domain.entity.Book;
 import com.udemy.libraryapi.domain.entity.Loan;
 import com.udemy.libraryapi.service.BookService;
 import com.udemy.libraryapi.service.LoanService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -20,6 +24,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/books")
+@Api("Book API")
 public class BookController {
 
     private BookService service;
@@ -34,6 +39,7 @@ public class BookController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @ApiOperation("CREATE A BOOK")
     public BookDTO create(@RequestBody @Valid BookDTO dto){
         Book entity = modelMapper.map(dto, Book.class);
 
@@ -42,6 +48,7 @@ public class BookController {
         return modelMapper.map(entity, BookDTO.class);
     }
 
+    @ApiOperation("OBTAINS A BOOK DETAILS BY ID")
     @GetMapping("{id}")
     public BookDTO get(@PathVariable(value = "id") Long id){
         return service.getById(id)
@@ -51,6 +58,10 @@ public class BookController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("{id}")
+    @ApiOperation("DELETE A BOOK BY ID")
+    @ApiResponses({
+            @ApiResponse(code = 204, message = "Book successfully deleted")
+    })
     public void delete(@PathVariable Long id){
         Book book = service.getById(id)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -60,6 +71,7 @@ public class BookController {
     }
 
     @PutMapping("{id}")
+    @ApiOperation("UPDATE A BOOK")
     public BookDTO update(@PathVariable Long id, @RequestBody BookDTO dto){
         return service.getById(id)
             .map(book -> {
@@ -75,6 +87,7 @@ public class BookController {
     }
 
     @GetMapping
+    @ApiOperation("FIND BOOKS BY PARAMS")
     public Page<BookDTO> find(BookDTO dto, Pageable pageRequest){
         Book filter = modelMapper.map(dto, Book.class);
         Page<Book> result = service.find(filter, pageRequest);
